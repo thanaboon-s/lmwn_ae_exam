@@ -104,7 +104,7 @@ on t.order_id = cin.order_id
  select customer_id
  ,min(order_datetime) min_order_datetime
  ,max(order_datetime) max_order_datetime
- ,date_diff('day',min(order_datetime),max(order_datetime)) day_of_active
+ ,ifnull(date_diff('day',min(order_datetime),max(order_datetime)),0) day_of_active
  from trans_with_act
  group by customer_id
 )
@@ -114,11 +114,11 @@ on t.order_id = cin.order_id
  ,case when interaction_datetime <= order_datetime then True
  else false
  end is_user_completed_purchase_after_interacting
- ,date_diff('min',interaction_datetime,order_datetime) as diff_interact_order_min
+ ,ifnull(date_diff('min',interaction_datetime,order_datetime),0) as diff_interact_order_min
  from trans_with_act t
  --and business_date between start_date and end_date
  )
-
+-- report_campaign_effectiveness_report
  ,report_campaign_effectiveness_report as (
  select a.*
  ,campaign_name
@@ -133,7 +133,7 @@ on t.order_id = cin.order_id
  on a.campaign_id = c.campaign_id
  )
  
- -- create report_customer_acquisition_report 
+ --report_customer_acquisition_report 
  ,report_customer_acquisition_report as (
  select t.*
  ,day_of_active
