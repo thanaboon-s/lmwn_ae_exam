@@ -72,53 +72,46 @@
   * **Restaurant Quality Complaint Report**  
     * **Business Objective:** Monitor the quality of food and service provided by partner restaurants and ensure they align with platform standards.  
     * **Required Insight:**  
+    
       * Volume of complaints linked to individual restaurants.  
-      * Nature of issues raised (e.g., food quality, wrong items, missing items).  
+      /*select restaurant_id,restaurant_name,count(order_id)
+	    from report_restaurant_quality_complaint_report
+	    where is_order_has_complaint is true
+	    group by restaurant_id,restaurant_name*/
+      * Nature of issues raised (e.g., food quality, wrong items, missing items). 
+       /*select restaurant_id
+	    ,restaurant_name
+	    ,issue_type
+	    ,issue_sub_type
+	    ,count(order_id)
+	    from report_restaurant_quality_complaint_report
+	    where is_order_has_complaint is true
+	    and issue_type = 'food'
+	    group by restaurant_id,restaurant_name,issue_type
+	    ,issue_sub_type*/
+      
       * Time to resolve restaurant-related issues.  
-      * Total customer compensation linked to each restaurant.  
+      * Total customer compensation linked to each restaurant. 
+      /*   select restaurant_id,restaurant_name,sum(compensation_amount) total_compensation_amount,count(distinct customer_id) as total_customer
+		    from report_restaurant_quality_complaint_report
+			group by restaurant_id,restaurant_name */
       * Ratio of complaints to total orders from the restaurant.  
+      /*    select count(order_id) total_orders
+		    ,sum(case when is_order_has_complaint is true then 1
+		    else 0 end) as total_complaint
+		    ,sum(case when is_order_has_complaint is true then 1
+		    else 0 end) / count(order_id) ratio
+		    from report_restaurant_quality_complaint_report*/
       * Impact on repeat purchase behavior from customers after such issues.
+      /*  select case when is_still_repeat_order is false then 'Not purchased'
+		    else 'Still repeat order' end as Customer_behavior
+		    ,count(distinct customer_id)
+		    from report_restaurant_quality_complaint_report
+		    where latest_complained_datetime not null
+		    group by case when is_still_repeat_order is false then 'Not purchased'
+		    else 'Still repeat order' end*/
       
-      
-    with report_complaint_summary_dashboard as 
-    (
-    select datetrunc('day', opened_datetime) as business_date 
-    ,a.*
-    ,ifnull(date_diff('min',opened_datetime,resolved_datetime),0) as time_opend_to_resolved_min
-    from support_tickets a 
-)
-    
-    ,report_driver_related_complaints_report as
-    (
-    select a.*
-    ,issue_type
-    ,issue_sub_type
-    ,channel
-    ,status
-    ,csat_score
-    ,compensation_amount
-    ,resolved_by_agent_id
-    ,opened_datetime
-    ,resolved_datetime
-    ,ifnull(date_diff('min',opened_datetime,resolved_datetime),0) as time_opend_to_resolved_min
-    ,case when b.order_id is not null then true else false end as is_order_has_complaint
-    from model_curated_driver_transaction a 
-    left join  support_tickets b
-    on a.order_id = b.order_id
-    )
-    
-    ,report_restaurant_quality_complaint_report as
-    (
-    select b.*
-    ,name as restaurant_name
-    ,ifnull(date_diff('min',opened_datetime,resolved_datetime),0) as time_opend_to_resolved_min
-    ,case when b.order_id is not null then true else false end as is_order_has_complaint
-    from  support_tickets b
-    left join  restaurants_master r
-    on b.restaurant_id = r.restaurant_id
-    )
+ 
    
     
-    select * --restaurant_id,restaurant_name,count(order_id)
-    from report_restaurant_quality_complaint_report
-    where is_order_has_complaint is true
+	

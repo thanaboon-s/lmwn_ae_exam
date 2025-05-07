@@ -2,7 +2,7 @@
  (
  business_date date not null,
  order_id VARCHAR(9) not null,
- customer_id VARCHAR(8) not null,
+ customer_id VARCHAR(9) not null,
  restaurant_id VARCHAR(7) not null,
  driver_id VARCHAR(6) not null,
  campaign_id VARCHAR(6),
@@ -33,13 +33,13 @@
 
 /*create or replace table model_curated_active_after_purchase 
  (
- customer_id VARCHAR(8) not null,
+ customer_id VARCHAR(9) not null,
  min_order_datetime datetime not null,
  max_order_datetime datetime not null,
  day_of_active int not null
- )
- /*
- create table model_curated_driver_transaction
+ )*/
+ 
+/* create table model_curated_driver_transaction
 (
 order_id VARCHAR(9) not null
 ,is_created boolean not null
@@ -68,3 +68,12 @@ from model_curated_marketing_transaction*/
 /*insert into model_curated_driver_transaction
 select *
 from model_curated_driver_transaction*/
+ 
+ /*	 create table model_curated_customers_repeat_order
+(
+customer_id VARCHAR(9) not null
+,latest_order_datetime datetime 
+,latest_complained_datetime datetime 
+,is_still_repeat_order boolean not null
+)
+*/
